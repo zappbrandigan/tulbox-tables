@@ -70,7 +70,7 @@ function extractTableData(table) {
 
     cells.forEach((cell) => {
       const colspan = parseInt(cell.getAttribute('colspan')) || 1;
-      const cellText = cell.innerText.trim();
+      const cellText = cell.innerText.replace(/\u00a0/g, ' ').trim();
 
       for (let i = 0; i < colspan; i++) {
         if (!skipColumns.has(colIndex + i)) {
