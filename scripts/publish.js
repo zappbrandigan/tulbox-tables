@@ -5,8 +5,18 @@ const { spawn } = require('child_process');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
-const PROJECT_NAME = path.basename(ROOT_DIR);
-const OUTPUT_ZIP = path.join(ROOT_DIR, `${PROJECT_NAME}.zip`);
+const MANIFEST_PATH = path.join(ROOT_DIR, 'src', 'manifest.json');
+const README_PATH = path.join(ROOT_DIR, 'README.md');
+
+function toSafeName(name) {
+  return name
+    .toLowerCase()
+    .replace('ū', 'u')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 function runZip(cwd, outputZip, folderName) {
   return new Promise((resolve, reject) => {
@@ -32,14 +42,23 @@ function runZip(cwd, outputZip, folderName) {
 
 async function publish() {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'publish-'));
-  const stagingDir = path.join(tempDir, PROJECT_NAME);
+  const manifestRaw = await fs.readFile(MANIFEST_PATH, 'utf8');
+  const manifest = JSON.parse(manifestRaw);
+  const appName =
+    toSafeName(manifest.name || path.basename(ROOT_DIR)) || 'extension';
+  const stagingDir = path.join(tempDir, appName);
+  const outputZip = path.join(ROOT_DIR, `${appName}.zip`);
 
   try {
     await fs.access(PUBLIC_DIR);
-    await fs.rm(OUTPUT_ZIP, { force: true });
+    await fs.access(README_PATH);
+    await fs.rm(outputZip, { force: true });
     await fs.mkdir(stagingDir, { recursive: true });
-    await fs.cp(PUBLIC_DIR, stagingDir, { recursive: true });
-    await runZip(tempDir, OUTPUT_ZIP, PROJECT_NAME);
+    await fs.copyFile(README_PATH, path.join(stagingDir, 'readme.md'));
+    await fs.cp(PUBLIC_DIR, path.join(stagingDir, 'public'), {
+      recursive: true,
+    });
+    await runZip(tempDir, outputZip, appName);
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }

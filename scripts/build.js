@@ -37,8 +37,32 @@ async function buildFile(filename) {
   await fs.writeFile(outputPath, obfuscated.getObfuscatedCode(), 'utf8');
 }
 
+async function copyNonJsAssets(dir = SRC_DIR) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+
+  await Promise.all(entries.map(async (entry) => {
+    const sourcePath = path.join(dir, entry.name);
+    const relativePath = path.relative(SRC_DIR, sourcePath);
+    const targetPath = path.join(PUBLIC_DIR, relativePath);
+
+    if (entry.isDirectory()) {
+      await fs.mkdir(targetPath, { recursive: true });
+      await copyNonJsAssets(sourcePath);
+      return;
+    }
+
+    if (path.extname(entry.name) === '.js') {
+      return;
+    }
+
+    await fs.mkdir(path.dirname(targetPath), { recursive: true });
+    await fs.copyFile(sourcePath, targetPath);
+  }));
+}
+
 async function build() {
   await fs.mkdir(PUBLIC_DIR, { recursive: true });
+  await copyNonJsAssets();
   await Promise.all(FILES.map(buildFile));
 }
 
