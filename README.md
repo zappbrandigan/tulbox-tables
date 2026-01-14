@@ -1,4 +1,4 @@
-# Table to CSV Exporter - Chrome Extension
+# TūlBOX Tables - Chrome Extension
 
 A Chrome extension that allows you to export an HTML table from any website to CSV format with a single click.
 
@@ -8,6 +8,7 @@ A Chrome extension that allows you to export an HTML table from any website to C
 - **Smart Naming**: Automatically names tables based on captions, headings, or IDs
 - **Individual Export**: Export specific tables one at a time
 - **Bulk Export**: Export all tables from a page simultaneously
+- **Pagination Mode**: Capture multi-page tables and export a combined CSV
 - **Clean CSV Format**: Properly formatted CSV with escaped special characters
 - **Manifest V3**: Built with the latest Chrome Extension standards
 
@@ -31,8 +32,25 @@ A Chrome extension that allows you to export an HTML table from any website to C
    - Number of rows and columns
 4. **Export options**:
    - Click on any individual table to export it as CSV
-   - Click "Export All Tables" button to download all tables at once
+   - Click "Export All Tables" button to download all tables at once (single-page mode)
+   - Switch to **Pagination** mode to capture multi-page tables
 5. **Files are automatically downloaded** to your default downloads folder
+
+### Pagination Mode (Multi-page Tables)
+
+Use pagination mode when a table is split across multiple pages.
+
+1. Switch the mode toggle to **Pagination**
+2. Choose the table you want to capture
+3. Click **Start Capture** to begin a session (it captures the current page immediately)
+4. Navigate to the next page of the table and click **Capture Current Page**
+5. Repeat step 4 for each page
+6. Click **Export Combined CSV** to download a single merged file
+7. Click **Clear Session** if you need to restart
+
+Notes:
+- The extension skips duplicate header rows automatically when merging pages.
+- Capture sessions are stored per tab until you export or clear them.
 
 ## Table Detection
 
@@ -84,6 +102,7 @@ The exported CSV files:
 - Modern CSS with gradients and animations
 - Responsive design
 - Real-time table scanning
+- Pagination capture controls with session status
 
 ## Browser Compatibility
 
@@ -99,6 +118,12 @@ The exported CSV files:
 - Some modern sites use `<div>` elements styled as tables (not supported)
 - Check if tables are hidden (display: none, visibility: hidden)
 - Try refreshing the page and reopening the extension
+
+### Pagination Capture Issues
+
+- Ensure you select the same table on each page before capturing
+- Some sites re-render table markup between pages; if rows are missing, clear the session and retry
+- If the popup shows an old capture session, click **Clear Session** and start over
 
 ### Extension Not Working
 
